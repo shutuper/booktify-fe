@@ -23,6 +23,7 @@ import BaseDialog from "../BaseDialog.jsx";
 import { queryClient } from "../../config/queryClient.js";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import IOSSwitch from "../IosSwitch.jsx";
 
 const initialCancelDialogState = {
   open: false,
@@ -33,6 +34,7 @@ export default function AppointmentList() {
   const authUser = useSelector((state) => state.auth.user);
   const isMasterView = authUser.role === "ROLE_MASTER";
   const [cancelDialog, setCancelDialog] = useState(initialCancelDialogState);
+  const [showCanceled, setShowCanceled] = useState(true);
   const [pageable, setPageable] = useState({
     size: 5,
     page: 0,
@@ -44,9 +46,11 @@ export default function AppointmentList() {
     isFetching,
     data: appointmentsPage,
   } = useQuery({
-    queryKey: ["appointments/get", pageable],
+    queryKey: ["appointments/get", pageable, showCanceled],
     queryFn: () =>
-      AppointmentApi.getAppointments(pageable).then((res) => res.data),
+      AppointmentApi.getAppointments(showCanceled, pageable).then(
+        (res) => res.data,
+      ),
     keepPreviousData: true,
   });
 
@@ -122,6 +126,13 @@ export default function AppointmentList() {
         >
           Appointments
         </Typography>
+        <Stack justifyContent="center" alignItems="center" gap={1}>
+          <Typography>Show canceled</Typography>
+          <IOSSwitch
+            checked={showCanceled}
+            onChange={(event, checked) => setShowCanceled(checked)}
+          />
+        </Stack>
       </Stack>
       <Divider className="my-4" />
       <Grid container spacing={2} style={{ marginTop: "20px" }}>

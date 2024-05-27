@@ -10,9 +10,9 @@ export default class AppointmentApi {
   static async bookAppointment(appointmentDto) {
     return ApiRequestService.post(`/private/appointments`, appointmentDto);
   }
-  static async getAppointments(pageable) {
+  static async getAppointments(showCanceled, pageable) {
     return ApiRequestService.get(`/private/appointments`, {
-      params: { ...pageable },
+      params: { ...pageable, showCanceled },
     });
   }
 
