@@ -206,9 +206,15 @@ const SignInPage = () => {
         onConfirm={handleOtpConfirm}
       >
         <MuiOtpInput
-          TextFieldsProps={{ autoFocus: true }}
+          autoFocus
+          TextFieldsProps={{ type: "tel", autoFocus: true, marginLeft: 0 }}
           display="flex"
-          sx={{ width: "300px" }}
+          sx={{
+            width: {
+              xs: "260px",
+              md: "300px",
+            },
+          }}
           gap={1}
           length={6}
           value={otp}

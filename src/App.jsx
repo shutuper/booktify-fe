@@ -30,7 +30,7 @@ function App() {
               <CssBaseline />
               <GlobalLoader>
                 <ThemeProvider theme={baseTheme}>
-                  <ToastContainer />
+                  <ToastContainer draggable />
                   <RouterProvider router={rootRouter} />
                 </ThemeProvider>
               </GlobalLoader>

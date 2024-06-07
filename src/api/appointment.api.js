@@ -7,9 +7,11 @@ export default class AppointmentApi {
       appointmentDto,
     );
   }
+
   static async bookAppointment(appointmentDto) {
     return ApiRequestService.post(`/private/appointments`, appointmentDto);
   }
+
   static async getAppointments(showCanceled, pageable) {
     return ApiRequestService.get(`/private/appointments`, {
       params: { ...pageable, showCanceled },
@@ -20,5 +22,12 @@ export default class AppointmentApi {
     return ApiRequestService.put(`/private/appointments/${appointmentId}`, {
       cancelReason,
     });
+  }
+
+  static async remindAppointment({ appointmentId, nHoursBefore }) {
+    return ApiRequestService.put(
+      `/private/appointments/${appointmentId}/reminders`,
+      { hoursBefore: +nHoursBefore },
+    );
   }
 }

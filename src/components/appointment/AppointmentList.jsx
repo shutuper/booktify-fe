@@ -30,10 +30,16 @@ const initialCancelDialogState = {
   appointmentId: null,
   cancelReason: "",
 };
+const initialNotifyDialogState = {
+  open: false,
+  appointmentId: null,
+  nHoursBefore: 1,
+};
 export default function AppointmentList() {
   const authUser = useSelector((state) => state.auth.user);
   const isMasterView = authUser.role === "ROLE_MASTER";
   const [cancelDialog, setCancelDialog] = useState(initialCancelDialogState);
+  const [notifyDialog, setNotifyDialog] = useState(initialNotifyDialogState);
   const [showCanceled, setShowCanceled] = useState(true);
   const [pageable, setPageable] = useState({
     size: 5,
@@ -63,6 +69,14 @@ export default function AppointmentList() {
     },
   });
 
+  const remindAppointment = useMutation({
+    mutationFn: AppointmentApi.remindAppointment,
+    onSuccess: () => {
+      handleCloseNotifyDialog();
+      toast.success("Appointment reminder set");
+    },
+  });
+
   function handleMasterClick(masterId, salonLinkName) {
     if (isMasterView) {
       return;
@@ -73,10 +87,22 @@ export default function AppointmentList() {
   function handleCloseDialog() {
     setCancelDialog(initialCancelDialogState);
   }
+
+  function handleCloseNotifyDialog() {
+    setNotifyDialog(initialNotifyDialogState);
+  }
+
   function handleCancelAppointment() {
     cancelAppointment.mutate({
       appointmentId: cancelDialog.appointmentId,
       cancelReason: cancelDialog.cancelReason,
+    });
+  }
+
+  function handleAppointmentReminder() {
+    remindAppointment.mutate({
+      appointmentId: notifyDialog.appointmentId,
+      nHoursBefore: notifyDialog.nHoursBefore,
     });
   }
 
@@ -106,6 +132,34 @@ export default function AppointmentList() {
               setCancelDialog((prevState) => ({
                 ...prevState,
                 cancelReason: event.target.value,
+              }))
+            }
+          />
+        </BaseDialog>
+      )}
+      {notifyDialog.open && (
+        <BaseDialog
+          title="Appointment reminder"
+          open={notifyDialog.open}
+          confirmDisabled={
+            notifyDialog.nHoursBefore && notifyDialog.nHoursBefore < 1
+          }
+          onConfirm={handleAppointmentReminder}
+          onClose={handleCloseNotifyDialog}
+          confirmButton="Confirm"
+          cancelButton="Back"
+        >
+          <TextField
+            className={"shadow-md"}
+            fullWidth
+            label="Number of hours before appointment*"
+            variant="outlined"
+            type="number"
+            value={notifyDialog.nHoursBefore}
+            onChange={(event) =>
+              setNotifyDialog((prevState) => ({
+                ...prevState,
+                nHoursBefore: event.target.value,
               }))
             }
           />
@@ -193,10 +247,17 @@ export default function AppointmentList() {
                 <Typography
                   variant="h7"
                   fontWeight="bold"
-                  className="text-pink-800"
+                  className="text-pink-800 hover:text-pink-900 cursor-pointer"
                   flexWrap="wrap"
+                  onClick={() => {
+                    setNotifyDialog({
+                      open: true,
+                      appointmentId: appointment.id,
+                      nHoursBefore: 1,
+                    });
+                  }}
                 >
-                  {`${dayjs(appointment.startDate).format("MMMM DD")}, ${dayjs(appointment.startDate).format("HH:mm")} - ${dayjs(appointment.endDate).format("HH:mm")}`}
+                  {`${dayjs(appointment.startDate).format("MMMM DD")}, ${dayjs(appointment.startDate).format("HH:mm")} - ${dayjs(appointment.endDate).format("HH:mm")}`}{" "}
                 </Typography>
                 <Typography
                   variant="h7"

@@ -34,7 +34,6 @@ export class RequestService {
   }
 
   constructor() {
-    // EVERY REQUEST
     this.axiosInstance.interceptors.request.use(
       async (req) => {
         this.countOfPendingRequests++;
@@ -53,8 +52,6 @@ export class RequestService {
         Promise.reject(err);
       },
     );
-
-    // EVERY RESPONSE
 
     this.axiosInstance.interceptors.response.use(
       (response) => {
@@ -91,7 +88,7 @@ export class RequestService {
         this.countOfPendingRequests--;
 
         const oldRefreshToken = await localforage.getItem("refreshToken");
-        // VALIDATION SERVER ERROR
+
         if (status === 400) {
           if (!config.ignoreErrorMessages) {
             toast.error(responseJson.message || "Api error");
@@ -104,9 +101,7 @@ export class RequestService {
           return Promise.reject();
         }
 
-        // REFRESH TOKEN MECHANISM
         if (status === 401 && oldRefreshToken) {
-          // if 401 response on new-token endpoint
           if (
             this.isAlreadyFetchingAccessToken &&
             config.url === "/public/users/refresh-token"
@@ -165,7 +160,6 @@ export class RequestService {
           return Promise.reject(err);
         }
 
-        // ANY OTHER SERVER ERROR
         const params = config.params;
         const err = new ApiError(responseJson);
 
